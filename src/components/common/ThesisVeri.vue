@@ -1,17 +1,18 @@
 <template>
-    <div class="projveri_container">
-        <!-- 科研项目审核 -->
+    <div class="thesisveri_container">
+        <!-- 学术论文审核 -->
         <el-card>
-            <div slot="header" style="text-align: left;"><b>科研项目待审核</b></div>
-            <el-table :data="tableProjData" stripe style="width: 100%">
-                <el-table-column prop="teaInfo.teaName" label="姓名" min-width="200"></el-table-column>
-                <el-table-column prop="projInfo.projTitle" label="项目名称" min-width="300"></el-table-column>
-                <el-table-column prop="projInfo.projOffdate" label="结题时间" min-width="200"></el-table-column>
+            <div slot="header" style="text-align: left;"><b>学术论文待审核</b></div>
+            <el-table :data="tableThesisData" stripe style="width: 100%">
+                <el-table-column prop="userInfo.teaName" label="姓名" min-width="200" v-if="ifShowTea"></el-table-column>
+                <el-table-column prop="userInfo.stuName" label="姓名" min-width="200" v-if="!ifShowTea"></el-table-column>
+                <el-table-column prop="thesisInfo.thesisTitle" label="论文题目" min-width="300"></el-table-column>
+                <el-table-column prop="thesisInfo.thesisDate" label="发表时间" min-width="200"></el-table-column>
                 <el-table-column label="操作" min-width="300">
                     <template slot-scope="scope">
-                        <el-button size="mini" @click="handleViewProj(scope.$index, scope.row)">详情</el-button>
-                        <el-button size="mini" type="success" @click="handlePassProj(scope.$index, scope.row)">通过</el-button>
-                        <el-button size="mini" type="danger" @click="handleBackProj(scope.$index, scope.row)">退回</el-button>
+                        <el-button size="mini" @click="handleViewThesis(scope.$index, scope.row)">详情</el-button>
+                        <el-button size="mini" type="success" @click="handlePassThesis(scope.$index, scope.row)">通过</el-button>
+                        <el-button size="mini" type="danger" @click="handleBackThesis(scope.$index, scope.row)">退回</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -39,7 +40,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="danger" @click="ensuerBackProj">确定退回</el-button>
+                <el-button type="danger" @click="ensuerBackThesis">确定退回</el-button>
             </div>
         </el-dialog>
 
@@ -53,42 +54,50 @@ export default {
             //分页         
             currentPage: 1,
             pageSize: 10,
-            tableProjData: [],
+            tableThesisData: [],
             total: 0,
+            //切换师生
+            ifShowTea: false,
+            //角色
+            role: '',
             //退回原因对话框
             dialogFormVisible: false,
             formLabelWidth: '0',
             reason: '',
             reasonList: [],
-            returnProjId: ''
+            returnThesisId: ''
         }
     },
     methods: {
         handleSizeChange(val) {
             this.pageSize = val;
-            this.getAllUnverifyProject(this.currentPage, this.pageSize);
+            this.getAllUnVerifyThesis(this.currentPage, this.pageSize);
         },
         handleCurrentChange(val) {
             this.currentPage = val;
-            this.getAllUnverifyProject(this.currentPage, this.pageSize);
+            this.getAllUnVerifyThesis(this.currentPage, this.pageSize);
         },
-        getAllUnverifyProject(pageNum, pageSize) {
-            this.axios.get('/admin/getAllUnVerifyProject/'+pageNum+'/'+pageSize)
+        getAllUnVerifyThesis(pageNum, pageSize) {
+            this.axios.get('/common/getAllUnVerifyThesis/'+pageNum+'/'+pageSize)
             .then(res => {
                 //console.log(res);
-                this.tableProjData = res.data.data.list;
+                this.tableThesisData = res.data.data.list;
                 this.total = res.data.data.total;
             }).catch(error => {
                 console.log(error);
             })
         },
-        handleViewProj(index, row) {
-            sessionStorage.setItem("TaskType","project");
-            sessionStorage.setItem("TaskId",row.projInfo.projId);
-            this.$router.push('/admin/TaskDetail');
+        handleViewThesis(index, row) {
+            sessionStorage.setItem("TaskType","thesis");
+            sessionStorage.setItem("TaskId",row.thesisInfo.thesisId);
+            if (this.role == '院级管理员') {
+                this.$router.push('/admin/TaskDetail');
+            } else {
+                this.$router.push('/user/TaskDetail');
+            }
         },
-        handlePassProj(index, row) {
-            this.axios.get('/common/passProject/'+row.projInfo.projId)
+        handlePassThesis(index, row) {
+            this.axios.get('/common/passThesis/'+row.thesisInfo.thesisId)
             .then(res => {
                 //console.log(res);
                 this.$notify({
@@ -96,23 +105,23 @@ export default {
                     message: res.data.message,
                     type: 'success'
                 })
-                this.getAllUnverifyProject(this.currentPage, this.pageSize);
+                this.getAllUnVerifyThesis(this.currentPage, this.pageSize);
             }).catch(error => {
                 console.log(error);
             })
         },
-        handleBackProj(index, row) {
+        handleBackThesis(index, row) {
             this.dialogFormVisible = true;
-            this.returnProjId = row.projInfo.projId;
+            this.returnThesisId = row.thesisInfo.thesisId;
         },
-        ensuerBackProj() {
-            this.axios.post('/common/failProject',{
-                id: this.returnProjId,
+        ensuerBackThesis() {
+            this.axios.post('/common/failThesis',{
+                id: this.returnThesisId,
                 reason: this.reason
             }).then(res => {
                 //console.log(res.data);
                 this.dialogFormVisible = false;
-                this.getAllUnverifyProject(this.currentPage, this.pageSize);
+                this.getAllUnVerifyThesis(this.currentPage, this.pageSize);
             }).catch(error => {
                 console.log("faile");
                 console.log(error);
@@ -137,9 +146,18 @@ export default {
                 { "value": "请重新提交"}
             ];
         },
+        getRole() {
+            this.role = sessionStorage.getItem('role');
+            if (this.role == '院级管理员') {
+                this.ifShowTea = true;
+            } else {
+                this.ifShowTea = false;
+            }
+        }
     },
     mounted() {
-        this.getAllUnverifyProject(this.currentPage, this.pageSize);
+        this.getAllUnVerifyThesis(this.currentPage, this.pageSize);
+        this.getRole();
         this.reasonList = this.loadAll();
     }
 }

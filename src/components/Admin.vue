@@ -11,17 +11,17 @@
                     </div>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item disabled>
-                            账号：2021888888<br>
-                            您的角色：{{this.roleName}}<br>
-                            所属学院：计算机科学学院
+                            账号：{{this.userInfo.adminAno}}<br>
+                            您的角色：{{this.role}}<br>
+                            所属学院：{{this.userInfo.adminCollege}}
                         </el-dropdown-item>
                         <el-dropdown-item icon="el-icon-edit" divided command="modify">修改密码</el-dropdown-item>
                         <el-dropdown-item icon="el-icon-turn-off" divided command="exit">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
                 <div class="notification">
-                    <el-badge :value="9" class="item">
-                        <el-button type="text" style="color:#303133;" @click="drawer = true">
+                    <el-badge :value="unreadNoticesNum" class="item" :hidden="ifHidden()">
+                        <el-button type="text" style="color:#303133;" @click="showNoticesList">
                             <i class="el-icon-message-solid"></i> 消息通知
                         </el-button>
                     </el-badge>
@@ -100,27 +100,102 @@
             </div>
         </div>
 
-        <el-drawer
-            title="消息列表"
-            :visible.sync="drawer"
-            :with-header="true">
-            <div v-for="o in 4" :key="o" class="text item" style="text-align:left;margin-left:10px;margin-bottom:10px;">
-                {{'列表内容 ' + o }}
+        <!-- 抽屉数据展示 -->
+        <el-drawer title="消息列表" :visible.sync="drawer" :with-header="true" :before-close="handleCloseDrawer" size="40%">
+            <div v-for="notice in noticesList" :key="notice.notiId" class="text item notice_list_container">
+                <div class="notice_container">
+                    <div class="btn_delete"><el-button type="text" @click="deleteNotice(notice.notiId)">删除</el-button></div>
+                    <div class="btn_read">
+                        <el-button type="text" :disabled="checkRead(notice.notiStatus)" @click="setRead(notice.notiId)">已读</el-button>
+                    </div>
+                    <div class="notice_content">{{notice.notiContent}}</div>
+                </div>
+                <div class="notice_time">{{notice.notiTime}}</div>
             </div>
+            <el-pagination class="pagination"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page.sync="currentPage"
+                :hide-on-single-page="true"
+                :page-size="pageSize"
+                layout="total, prev, pager, next"
+                :total="total">
+            </el-pagination>
         </el-drawer>
+
+        <el-dialog title="修改密码" :visible.sync="dialogFormVisible" width="500px">
+            <el-form :model="pwdForm" :rules="pwdRules" ref="pwdForm" label-width="80px">
+                <el-form-item label="原密码" prop="oldPwd">
+                    <el-input type="password" v-model="pwdForm.oldPwd" autocomplete="off" show-password></el-input>
+                </el-form-item>
+                <el-form-item label="新密码" prop="pwd">
+                    <el-input type="password" v-model="pwdForm.pwd" autocomplete="off" show-password></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" prop="checkPwd" >
+                    <el-input type="password" v-model="pwdForm.checkPwd" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="changePwd('pwdForm')">确 定</el-button>
+            </div>
+        </el-dialog>
+
+
     </div>
 </template>
 
 <script>
+import {setPass} from '../assets/rules.js'
 export default {
     data() {
+        //前后密码是否一致
+        var validatePass = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请再次输入密码'));
+            } else if (value !== this.pwdForm.pwd) {
+                callback(new Error('两次输入密码不一致!'));
+            } else {
+                callback();
+            }
+        };
         return {
+            //用户信息
+            userInfo: {},
+            //用户角色
             role: '',
-            roleName: '',
+            //导航栏切换根据字段
             ifShow: '',
+            //抽屉
             drawer: false,
+            //抽屉分页
+            currentPage: 1,
+            pageSize: 10,
+            noticesList:[],
+            total: 0,
+            //面包屑
             nav1: '首页',
-            nav2: ''
+            nav2: '',
+            //未读消息通知个数
+            unreadNoticesNum: 0,
+            //修改密码
+            dialogFormVisible: false,
+            pwdForm: {
+                oldPwd: '',
+                pwd: '',
+                checkPwd: ''
+            },
+            pwdRules: {
+                oldPwd: [
+                    { required: true, message: '请输入原密码', trigger: 'blur' }
+                ],
+                pwd: [
+                    { required: true, validator: setPass, trigger: 'blur' }
+                ],
+                checkPwd: [
+                    { required: true, validator: validatePass, trigger: 'blur' }
+                ]
+            }
         }
     },
     methods: {
@@ -197,32 +272,174 @@ export default {
         },
         handleCommand(command) {
             if (command == 'modify') {
-                console.log("点击了修改密码");
+                //console.log("点击了修改密码");
+                this.dialogFormVisible = true;
             } else if (command == 'exit') {
-                // console.log("点击了退出登录");
-                this.$router.push('/');
+                this.axios.get('/common/logout')
+                .then(res => {
+                    if (res.data.success) {
+                        sessionStorage.removeItem('role');
+                        sessionStorage.removeItem('userInfo');
+                        this.$router.push('/');
+                    } else {
+                        this.$notify.error({
+                            title: '错误',
+                            message: res.data.message
+                        })
+                        sessionStorage.removeItem('role');
+                        sessionStorage.removeItem('userInfo');
+                        this.$router.push('/');
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
             }
+        },
+        //修改密码
+        changePwd(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    this.axios.post('/common/updatePassword',{
+                        oldPwd: this.pwdForm.oldPwd,
+                        newPwd: this.pwdForm.checkPwd
+                    }).then(res => {
+                        if (res.data.success) {
+                            this.$notify({
+                                title: '修改密码成功',
+                                message: res.data.message,
+                                type: 'success'
+                            })
+                            this.dialogFormVisible = false;
+                        } else {
+                            this.$notify.error({
+                                title: '请重试',
+                                message: res.data.message
+                            })
+                        }
+                    }).catch(error => {
+                        console.log("faile");
+                        console.log(error);
+                    })
+                } else {
+
+                }
+            })
         },
         ifnav2() {
             if (this.nav2 == null) {
                 return false;
             } else return true;
         },
-        getRole() {
-            this.role = this.$route.params.role;
-            // console.log("lalal  "+this.role);
-            if (this.role == 'admin') {
+        //获取用户登录信息
+        getUser() {
+            this.role = sessionStorage.getItem('role');
+            this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
+            if (this.role == '院级管理员') {
                 this.ifShow = false;
-                this.roleName = '学院管理员';
             } else {
                 this.ifShow = true;
-                this.roleName = '超级管理员';
             }
+        },
+        //获取当前用户未读消息条数
+        getUnreadNoticesNum() {
+            this.axios.get('/common/unreadNoticesNum')
+            .then(res => {
+                if (res.data.success) {
+                    this.unreadNoticesNum = res.data.data;
+                } else {
+                    this.$notify.error({
+                        title: res.data.message,
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        },
+        //是否隐藏右上角数字标记
+        ifHidden() {
+            if (this.unreadNoticesNum == 0) {
+                return true;
+            } else return false;
+        },
+        //打开抽屉，获取消息列表
+        showNoticesList() {
+            this.drawer = true;
+            this.getNoticesList(this.currentPage, this.pageSize);
+        },
+        //获取消息列表
+        getNoticesList(pageNum, pageSize) {
+            this.axios.get('/common/getNotices/'+pageNum+'/'+pageSize)
+            .then(res => {
+                if (res.data.success) {
+                    //console.log(res.data.data);
+                    this.noticesList = res.data.data.list;
+                    this.total = res.data.data.total;
+                } else {
+                    this.$notify.error({
+                        title: res.data.message,
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        },
+        //检查是否该条信息是否已读
+        checkRead(status) {
+            if (status == '0') {
+                //未读
+                return false;
+            } else return true;
+        },
+        //将一条消息置为已读
+        setRead(notiId) {
+            this.axios.get('common/readNotice/'+notiId)
+            .then(res => {
+                if (res.data.success) {
+                    //console.log(res.data);
+                    this.getNoticesList(this.currentPage, this.pageSize);
+                } else {
+                    this.$notify.error({
+                        title: res.data.message,
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        },
+        //将一条消息删除
+        deleteNotice(notiId) {
+            this.axios.get('common/deleteNotice/'+notiId)
+            .then(res => {
+                if (res.data.success) {
+                    this.getNoticesList(this.currentPage, this.pageSize);
+                } else {
+                    this.$notify.error({
+                        title: res.data.message,
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        },
+        //分页
+        handleSizeChange(val) {
+            this.pageSize = val;
+            this.getNoticesList(this.currentPage, this.pageSize);
+        },
+        handleCurrentChange(val) {
+            this.currentPage = val;
+            this.getNoticesList(this.currentPage, this.pageSize);
+        },
+        //抽屉关闭前的回调
+        handleCloseDrawer() {
+            this.getUnreadNoticesNum();
+            this.drawer = false;
         }
     },
     mounted() {
-        this.getRole();
-        this.toAdminHome();
+        this.getUser();//获取用户登录信息
+        this.toAdminHome();//默认定向到管理员首页
+        this.getUnreadNoticesNum();//获取当前用户未读消息条数
     }
 }
 </script>
@@ -427,9 +644,47 @@ html, body {
     background-color: rgba(255, 255, 255, 0.5);
 }
 .navText {
-    margin-left: 13px;
+    margin-left: 25px;
 }
 .el-divider__text {
     background-color: rgba(255, 255, 255, 0);
+}
+/* 抽屉 */
+.notice_list_container {
+    /* margin: 10px; */
+    border-bottom: 1px solid rgb(153, 151, 151);
+    padding-bottom: 5px;
+}
+.notice_list_container:hover {
+    background: rgba(0,0,0,.06);
+}
+.notice_container {
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: row-reverse;
+    padding-left: 10px;
+}
+.notice_content {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    flex: 1;
+}
+.btn_read {
+    padding: 0 10px 0 10px;
+}
+.btn_delete {
+    padding: 0 10px 0 10px;
+}
+.notice_time {
+    text-align: right;
+    padding-right: 10px;
+}
+.pagination {
+    /* border: 1px solid red; */
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    height: 40px;
 }
 </style>

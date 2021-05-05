@@ -3,19 +3,19 @@
         <el-card>
             <div slot="header" style="text-align: left;"><b>发布公告</b></div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-                <el-form-item label="公告标题" prop="title">
-                    <el-input v-model="ruleForm.title"></el-input>
+                <el-form-item label="公告标题" prop="annoTitle">
+                    <el-input v-model="ruleForm.annoTitle" type="text" maxlength="50" show-word-limit></el-input>
                 </el-form-item>
-                <el-form-item label="公告内容" prop="content">
+                <el-form-item label="公告内容" prop="annoContent">
                     <mavon-editor
                         :toolbars="toolbars"
                         style="height:600px"
                         :autofocus="false"
-                        v-model="ruleForm.content"
+                        v-model="ruleForm.annoContent"
                         @change="change"
                         ref="md"/>
                 </el-form-item>
-                <el-form-item>
+                <el-form-item style="text-align: left;">
                     <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
                 </el-form-item>
@@ -29,15 +29,15 @@ export default {
     data() {
         return {
             ruleForm: {
-                title: '',
-                content: ''
+                annoTitle: '',
+                annoContent: ''
             },
             rules: {
-                title: [
+                annoTitle: [
                     { required: true, message: '请输入活动名称', trigger: 'blur' },
-                    { min: 3, max: 5, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+                    { min: 3, max: 50, message: '长度在 3 到 50 个字符', trigger: 'blur' }
                 ],
-                content: [
+                annoContent: [
                     { required: true, message: '内容不能为空', trigger: 'blur' }
                 ],
             },
@@ -85,7 +85,29 @@ export default {
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
             if (valid) {
-                alert('submit!');
+                this.axios.post('/admin/postAnnounce',{
+                    annoTitle: this.ruleForm.annoTitle,
+                    annoContent: this.ruleForm.annoContent
+                }).then(res => {
+                    //console.log(res);
+                    if (res.data.success) {
+                        this.$notify({
+                            title: '公告发布成功，待审核',
+                            message: res.data.message,
+                            type: 'success'
+                        });
+                        //清空
+                        this.resetForm('ruleForm');
+                    } else {
+                        this.$notify.error({
+                            title: '计划上传失败，请重试',
+                            message: res.data.message
+                        })
+                    }
+                }).catch(error => {
+                    console.log("faile");
+                    console.log(error);
+                })
             } else {
                 console.log('error submit!!');
                 return false;

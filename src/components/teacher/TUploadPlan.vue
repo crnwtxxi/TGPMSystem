@@ -1,27 +1,6 @@
 <template>
     <div class="Tuploadplan_container">
         <el-card>
-            <div slot="header" style="text-align: left;"><b>进度查看</b></div>
-            <el-table :data="planData" style="width: 100%">
-                <el-table-column label="计划编号" prop="id" min-width="15%"></el-table-column>
-                <el-table-column label="计划题目" prop="name" min-width="50%"></el-table-column>
-                <el-table-column label="提交时间" prop="date" min-width="15%"></el-table-column>
-                <el-table-column
-                    prop="state"
-                    label="状态"
-                    min-width="20%"
-                    :filters="[{ text: '通过', value: '通过' }, { text: '审核中', value: '审核中' }]"
-                    :filter-method="filterTag"
-                    filter-placement="bottom-end">
-                    <template slot-scope="scope">
-                        <el-tag
-                        :type="scope.row.state === '通过' ? 'success' : 'warning'"
-                        disable-transitions>{{scope.row.state}}</el-tag>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-card>
-        <el-card style="margin-top: 20px;">
             <div slot="header" style="text-align: left;"><b>上传计划</b></div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="计划标题" prop="title">
@@ -36,7 +15,14 @@
                         @change="change"
                         ref="md"/>
 				</el-form-item>
-                <el-form-item>
+                <el-form-item label="发布范围" style="text-align: left;">
+                    <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
+                    <div style="margin: 15px 0;"></div>
+                    <el-checkbox-group v-model="checkedStudents" @change="handleCheckedStudentsChange">
+                        <el-checkbox v-for="student in stuednts" :label="student" :key="student.stuId">{{student.stuName}}</el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+                <el-form-item style="text-align: left;">
                     <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
                     <el-button @click="resetForm('ruleForm')">重置</el-button>
                 </el-form-item>
@@ -49,25 +35,22 @@
 export default {
     data() {
         return {
+            checkAll: false,
+            checkedStudents: [],
+            stuednts: [],
+            isIndeterminate: true,
             ruleForm: {
                 title: '',
                 content: ''
             },
             rules: {
                 title: [
-                    { required: true, message: '请输入活动名称', trigger: 'blur' },
-                    { min: 3, max: 5, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+                    { required: true, message: '请输入活动名称', trigger: 'blur' }
                 ],
                 content: [
                     { required: true, message: '内容不能为空', trigger: 'blur' }
                 ],
             },
-            planData: [{
-                id: '12987122',
-                name: '全日制学术型硕士人工智能方向培养计划',
-                date: '2019-07-26',
-                state: '通过'
-            }],
             toolbars: {
 				bold: true, // 粗体
 				italic: true, // 斜体
@@ -111,12 +94,36 @@ export default {
 		},
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
-            if (valid) {
-                alert('submit!');
-            } else {
-                console.log('error submit!!');
-                return false;
-            }
+                if (valid) {
+                    this.axios.post('/teacher/uploadPlan',{
+                        planTitle: this.ruleForm.title,
+                        planContent: this.ruleForm.content,
+                        studentList: this.checkedStudents
+                    }).then(res => {
+                        console.log(res);
+                        if (res.data.success) {
+                            this.$notify({
+                                title: '计划上传成功，待审核',
+                                message: res.data.message,
+                                type: 'success'
+                            });
+                            //清空
+                            this.resetForm('ruleForm');
+                            this.checkedStudents = [];
+                        } else {
+                            this.$notify.error({
+                                title: '计划上传失败，请重试',
+                                message: res.data.message
+                            })
+                        }
+                    }).catch(error => {
+                        console.log("faile");
+                        console.log(error);
+                    })
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
             });
         },
         resetForm(formName) {
@@ -125,10 +132,43 @@ export default {
         filterTag(value, row) {
             return row.tag === value;
         },
+        //获取自己的学生到发布范围内
+        getAllSelfStu() {
+            this.axios.get('/teacher/getAllSelfStu')
+            .then(res => {
+                if (res.data.success) {
+                    this.stuednts = res.data.data;
+                    //console.log(res.data);
+                } else {
+                    this.$notify.error({
+                        title: '错误',
+                        message: res.data.message
+                    })
+                    //this.$router.push('/');
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        },
+        handleCheckAllChange(val) {
+            this.checkedStudents = val ? this.stuednts : [];
+            this.isIndeterminate = false;
+        },
+        handleCheckedStudentsChange(value) {
+            let checkedCount = value.length;
+            this.checkAll = checkedCount === this.stuednts.length;
+            this.isIndeterminate = checkedCount > 0 && checkedCount < this.stuednts.length;
+        }
+    }, 
+    mounted() {
+        this.getAllSelfStu();
     }
 }
 </script>
 
 <style scoped>
-
+.transfer-footer {
+    margin-left: 20px;
+    padding: 6px 5px;
+}
 </style>

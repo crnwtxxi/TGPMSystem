@@ -21,6 +21,9 @@ import Home from '@/components/Home'
 import User from '@/components/User'
 import Admin from '@/components/Admin';
 
+//common
+import ActiVeri from '@/components/common/ActiVeri';//学术活动审核
+import ThesisVeri from '@/components/common/ThesisVeri';//学术论文审核
 
 //学生端
 import STutorChoose from '@/components/student/STutorChoose';//导师选择
@@ -39,9 +42,7 @@ import ThesisRecord from '@/components/stutea/ThesisRecord';//论文记录
 import TAppliVeri from '@/components/teacher/TAppliVeri';//学生申请导师审核
 import TStuInfo from '@/components/teacher/TStuInfo';//学生信息
 import TUploadPlan from '@/components/teacher/TUploadPlan';//上传计划
-import TStuActiVeri from '@/components/teacher/TStuActiVeri';//学生活动审核
 import TProjAppli from '@/components/teacher/TProjAppli';//科研项目申报
-import TStuThesisVeri from '@/components/teacher/TStuThesisVeri';//学生论文审核
 
 //管理端
 import AdminHome from '@/components/admin/AdminHome';//首页
@@ -54,9 +55,7 @@ import StuUpload from '@/components/admin/StuUpload';//学生信息上传
 import StuInfo from '@/components/admin/StuInfo';//学生信息管理
 import Allocation from '@/components/admin/Allocation';//师生分配情况
 import PlanVeri from '@/components/admin/PlanVeri';//培养计划审核
-import ActiVeri from '@/components/admin/ActiVeri';//学术活动审核
 import ProjVeri from '@/components/admin/ProjVeri';//科研项目审核
-import ThesisVeri from '@/components/admin/ThesisVeri';//学术论文审核
 
 //附属组件
 import Anno from '@/components/pop/Anno';//公告详情页面
@@ -136,19 +135,9 @@ export default new Router({
           component: TUploadPlan
         },
         {
-          path: 'TStuActiVeri',
-          name: 'TStuActiVeri',
-          component: TStuActiVeri
-        },
-        {
           path: 'TProjAppli',
           name: 'TProjAppli',
           component: TProjAppli
-        },
-        {
-          path: 'TStuThesisVeri',
-          name: 'TStuThesisVeri',
-          component: TStuThesisVeri
         },
         {
           path: 'Anno',
@@ -164,7 +153,17 @@ export default new Router({
           path: 'TaskDetail',
           name: 'TaskDetail',
           component: TaskDetail
-        }
+        },
+        {
+          path: 'ActiVeri',
+          name: 'ActiVeri',
+          component: ActiVeri
+        },
+        {
+          path: 'ThesisVeri',
+          name: 'ThesisVeri',
+          component: ThesisVeri
+        },
       ]
     },
     {

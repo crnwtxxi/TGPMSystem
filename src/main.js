@@ -5,14 +5,17 @@ import App from './App'
 import router from './router'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import VueCookies from 'vue-cookies'
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 
-axios.defaults.baseURL= "http://localhost:8080"
+axios.defaults.baseURL= 'http://localhost:8080'
 axios.defaults.headers.post['Content-Type'] = 'application/json'
+axios.defaults.withCredentials=true;
 
 Vue.use(mavonEditor)
 Vue.use(VueAxios, axios)
+Vue.use(VueCookies)
 
 Vue.config.productionTip = false
 

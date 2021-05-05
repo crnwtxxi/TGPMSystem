@@ -122,7 +122,6 @@
 </template>
 
 <script>
-import eventBus from '../../assets/eventBus';
 export default {
     data() {
         return {
@@ -197,29 +196,6 @@ export default {
         getInit() {
             var self = this;
             var lists = {};
-            eventBus.$on('info',(message)=>{
-                // console.log('打印message');
-                // console.log(message);
-                // console.log(message.identify);
-                // console.log(message.info);
-                // lists = message;
-                // console.log(lists);
-                // {self.infoList.identify, self.infoList.info} = message;
-                // self.infoList = message;
-                // console.log(self.infoList);
-                // this.infoList.identify = message.identify;
-                // this.infoList.info = message.info;
-            })
-            // console.log(lists);
-            // this.infoList = lists;
-            // console.log(this.infoList);
-            // if (this.infoList.identify == 'teacher') {
-            //     this.isTea = true;
-            //     console.log(this.infoList.identify);
-            // } else if (this.infoList.identify == 'student') {
-            //     this.isTea = false;
-            //     console.log(this.infoList.identify);
-            // }
         }
     },
     mounted() {

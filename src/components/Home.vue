@@ -19,6 +19,7 @@
                                         <el-input v-model="stuForm.stupwd" clearable show-password></el-input>
                                     </el-form-item>
                                     <el-form-item class="loginitem">
+                                        <el-button plain @click="goStuPage('stuForm')" class="loginbtn">直接进入</el-button>
                                         <el-button plain @click="onStuLogin('stuForm')" class="loginbtn">登录</el-button>
                                     </el-form-item>
                                 </el-form>
@@ -39,6 +40,7 @@
                                         <el-input v-model="teaForm.teapwd" clearable show-password></el-input>
                                     </el-form-item>
                                     <el-form-item class="loginitem">
+                                        <el-button plain @click="goTeaPage('teaForm')" class="loginbtn">直接进入</el-button>
                                         <el-button plain @click="onTeaLogin('teaForm')" class="loginbtn">登录</el-button>
                                     </el-form-item>
                                 </el-form>
@@ -59,6 +61,8 @@
                                         <el-input v-model="adminForm.adminpwd" clearable show-password></el-input>
                                     </el-form-item>
                                     <el-form-item class="loginitem">
+                                        <el-button plain @click="goAdminPage('adminForm')" class="loginbtn">Admin</el-button>
+                                        <el-button plain @click="goSuperPage('adminForm')" class="loginbtn">Super</el-button>
                                         <el-button plain class="loginbtn" @click="onAdminLogin('adminForm')">登录</el-button>
                                     </el-form-item>
                                 </el-form>
@@ -119,19 +123,25 @@ export default {
         }
     },
     methods: {
+        //绕过后台直接进入页面
+        goStuPage(formName) {
+            this.role = 'student';
+            this.$router.push({
+                name: 'User',
+                params: {role: this.role}
+            });
+        },
         onStuLogin(formName) {
-            //this.role = 'student';
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     this.axios.post('/common/student-login',{
-                        sno: this.stuForm.stuno,
-                        pwd: this.stuForm.stupwd
+                        stuSno: this.stuForm.stuno,
+                        stuPwd: this.stuForm.stupwd
                     }).then(res => {
-                        console.log("success");
                         console.log(res.data);
                         if (res.data.success) {
-                            sessionStorage.setItem('userData', JSON.stringify(res.data.data));
-                            sessionStorage.setItem('userRole', 'student');
+                            sessionStorage.setItem('role',res.data.role);
+                            sessionStorage.setItem('userInfo',JSON.stringify(res.data.data));
                             this.$router.push('/user');
                             this.$notify({
                                 title: '登录成功',
@@ -153,29 +163,35 @@ export default {
                 }
             })
         },
-        onTeaLogin(formName) {
+        //绕过后台直接进入页面
+        goTeaPage(formName) {
             this.role = 'teacher';
+            this.$router.push({
+                name: 'User',
+                params: {role: this.role}
+            });
+        },
+        onTeaLogin(formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    this.axios.post('/teacher/login',{
-                        num: this.teaForm.teano,
-                        pwd: this.teaForm.teapwd
+                    this.axios.post('/common/teacher-login',{
+                        teaTno: this.teaForm.teano,
+                        teaPwd: this.teaForm.teapwd
                     }).then(res => {
-                        console.log("success");
-                        // console.log(res);
-                        if (res.data.code == '0') {
-                            this.$router.push({
-                                name: 'User',
-                                params: {role: this.role}
-                            });
+                        console.log(res);
+                        if (res.data.success) {
+                            //数据存session storage里面
+                            sessionStorage.setItem('role',res.data.role);
+                            sessionStorage.setItem('userInfo',JSON.stringify(res.data.data));
+                            this.$router.push('/user');
                             this.$notify({
                                 title: '登录成功',
                                 message: res.data.message,
                                 type: 'success'
                             })
-                        } else if (res.data.code =='-1') {
+                        } else {
                             this.$notify.error({
-                                title: '登录失败',
+                                title: '登录失败，请重试',
                                 message: res.data.message
                             })
                         }
@@ -188,32 +204,40 @@ export default {
                 }
             })
         },
+        goAdminPage(formName) {
+            this.role = 'admin';
+            this.$router.push({
+                name: 'Admin',
+                params: {role: this.role}
+            });
+        },
+        goSuperPage(formName) {
+            this.role = 'super';
+            this.$router.push({
+                name: 'Admin',
+                params: {role: this.role}
+            });
+        },
         onAdminLogin(formName) {
-            // this.role = 'admin';
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    this.axios.post('/admin/login',{
-                        num: this.adminForm.adminno,
-                        pwd: this.adminForm.adminpwd
+                    this.axios.post('/common/admin-login',{
+                        adminAno: this.adminForm.adminno,
+                        adminPwd: this.adminForm.adminpwd
                     }).then(res => {
-                        console.log("admin success");
-                        // console.log(res.data.role);
-                        this.role = res.data.role;
-                        // console.log("hhhh"+this.role);
-                        if (res.data.code == '0') {
-                            this.$router.push({
-                                name: 'Admin',
-                                params: {role: this.role}
-                            });
+                        console.log(res);
+                        if (res.data.success) {
+                            sessionStorage.setItem('role',res.data.role);
+                            sessionStorage.setItem('userInfo',JSON.stringify(res.data.data));
+                            this.$router.push('/admin');
                             this.$notify({
                                 title: '登录成功',
                                 message: res.data.message,
                                 type: 'success'
                             })
-                        } else if (res.data.code =='-1') {
+                        } else {
                             this.$notify.error({
-                                title: '登录失败',
-                                message: res.data.message
+                                title: '登录失败，请重试'
                             })
                         }
                     }).catch(error => {
@@ -235,6 +259,39 @@ export default {
             }
             });
         },
+        //检查是否已经有用户正在处于登录状态
+        checkLogined() {
+            this.axios.get('/common/checkLogined')
+            .then(res => {
+                if (res.data.success) {
+                    //允许登录
+                } else {
+                    //不允许登录,说明有用户正在处于登录状态
+                    //直接判断用户身份，跳转到对应的用户界面
+                    //console.log(res.data.message);
+                    switch (res.data.role) {
+                        case '学生':
+                        case '老师':
+                            //数据存session storage里面
+                            sessionStorage.setItem('role',res.data.role);
+                            sessionStorage.setItem('userInfo',JSON.stringify(res.data.data));
+                            this.$router.push('/user');
+                            break;
+                        case '院级管理员':
+                        case '超级管理员':
+                            sessionStorage.setItem('role',res.data.role);
+                            sessionStorage.setItem('userInfo',JSON.stringify(res.data.data));
+                            this.$router.push('/admin');
+                            break;
+                    }
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        }
+    },
+    mounted() {
+        this.checkLogined();
     }
 }
 </script>
@@ -336,8 +393,5 @@ body > .el-container {
 }
 .loginitem {
     text-align: right;
-}
-.loginbtn {
-    margin-left: -100px;
 }
 </style>

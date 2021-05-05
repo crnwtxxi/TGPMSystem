@@ -1,17 +1,18 @@
 <template>
-    <div class="projveri_container">
-        <!-- 科研项目审核 -->
+    <div class="activeri_container">
+        <!-- 学术活动审核 -->
         <el-card>
-            <div slot="header" style="text-align: left;"><b>科研项目待审核</b></div>
-            <el-table :data="tableProjData" stripe style="width: 100%">
-                <el-table-column prop="teaInfo.teaName" label="姓名" min-width="200"></el-table-column>
-                <el-table-column prop="projInfo.projTitle" label="项目名称" min-width="300"></el-table-column>
-                <el-table-column prop="projInfo.projOffdate" label="结题时间" min-width="200"></el-table-column>
+            <div slot="header" style="text-align: left;"><b>学术活动待审核</b></div>
+            <el-table :data="tableActiData" stripe style="width: 100%">
+                <el-table-column prop="userInfo.teaName" label="姓名" min-width="200" v-if="ifShowTea"></el-table-column>
+                <el-table-column prop="userInfo.stuName" label="姓名" min-width="200" v-if="!ifShowTea"></el-table-column>
+                <el-table-column prop="actiInfo.actiTitle" label="活动名称" min-width="300"></el-table-column>
+                <el-table-column prop="actiInfo.actiDate" label="活动时间" min-width="200"></el-table-column>
                 <el-table-column label="操作" min-width="300">
                     <template slot-scope="scope">
-                        <el-button size="mini" @click="handleViewProj(scope.$index, scope.row)">详情</el-button>
-                        <el-button size="mini" type="success" @click="handlePassProj(scope.$index, scope.row)">通过</el-button>
-                        <el-button size="mini" type="danger" @click="handleBackProj(scope.$index, scope.row)">退回</el-button>
+                        <el-button size="mini" @click="handleViewActi(scope.$index, scope.row)">详情</el-button>
+                        <el-button size="mini" type="success" @click="handlePassActi(scope.$index, scope.row)">通过</el-button>
+                        <el-button size="mini" type="danger" @click="handleBackActi(scope.$index, scope.row)">退回</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -39,7 +40,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="danger" @click="ensuerBackProj">确定退回</el-button>
+                <el-button type="danger" @click="ensuerBackActi">确定退回</el-button>
             </div>
         </el-dialog>
 
@@ -53,42 +54,50 @@ export default {
             //分页         
             currentPage: 1,
             pageSize: 10,
-            tableProjData: [],
+            tableActiData: [],
             total: 0,
+            //切换师生
+            ifShowTea: false,
+            //角色
+            role: '',
             //退回原因对话框
             dialogFormVisible: false,
             formLabelWidth: '0',
             reason: '',
             reasonList: [],
-            returnProjId: ''
+            returnActiId: ''
         }
     },
     methods: {
         handleSizeChange(val) {
             this.pageSize = val;
-            this.getAllUnverifyProject(this.currentPage, this.pageSize);
+            this.getAllUnverifyActivity(this.currentPage, this.pageSize);
         },
         handleCurrentChange(val) {
             this.currentPage = val;
-            this.getAllUnverifyProject(this.currentPage, this.pageSize);
+            this.getAllUnverifyActivity(this.currentPage, this.pageSize);
         },
-        getAllUnverifyProject(pageNum, pageSize) {
-            this.axios.get('/admin/getAllUnVerifyProject/'+pageNum+'/'+pageSize)
+        getAllUnverifyActivity(pageNum, pageSize) {
+            this.axios.get('/common/getAllUnVerifyActivity/'+pageNum+'/'+pageSize)
             .then(res => {
                 //console.log(res);
-                this.tableProjData = res.data.data.list;
+                this.tableActiData = res.data.data.list;
                 this.total = res.data.data.total;
             }).catch(error => {
                 console.log(error);
             })
         },
-        handleViewProj(index, row) {
-            sessionStorage.setItem("TaskType","project");
-            sessionStorage.setItem("TaskId",row.projInfo.projId);
-            this.$router.push('/admin/TaskDetail');
+        handleViewActi(index, row) {
+            sessionStorage.setItem("TaskType","activity");
+            sessionStorage.setItem("TaskId",row.actiInfo.actiId);
+            if (this.role == '院级管理员') {
+                this.$router.push('/admin/TaskDetail');
+            } else {
+                this.$router.push('/user/TaskDetail');
+            }
         },
-        handlePassProj(index, row) {
-            this.axios.get('/common/passProject/'+row.projInfo.projId)
+        handlePassActi(index, row) {
+            this.axios.get('/common/passActivity/'+row.actiInfo.actiId)
             .then(res => {
                 //console.log(res);
                 this.$notify({
@@ -96,23 +105,23 @@ export default {
                     message: res.data.message,
                     type: 'success'
                 })
-                this.getAllUnverifyProject(this.currentPage, this.pageSize);
+                this.getAllUnverifyActivity(this.currentPage, this.pageSize);
             }).catch(error => {
                 console.log(error);
             })
         },
-        handleBackProj(index, row) {
+        handleBackActi(index, row) {
             this.dialogFormVisible = true;
-            this.returnProjId = row.projInfo.projId;
+            this.returnActiId = row.actiInfo.actiId;
         },
-        ensuerBackProj() {
-            this.axios.post('/common/failProject',{
-                id: this.returnProjId,
+        ensuerBackActi() {
+            this.axios.post('/common/failActivity',{
+                id: this.returnActiId,
                 reason: this.reason
             }).then(res => {
                 //console.log(res.data);
                 this.dialogFormVisible = false;
-                this.getAllUnverifyProject(this.currentPage, this.pageSize);
+                this.getAllUnverifyActivity(this.currentPage, this.pageSize);
             }).catch(error => {
                 console.log("faile");
                 console.log(error);
@@ -137,9 +146,18 @@ export default {
                 { "value": "请重新提交"}
             ];
         },
+        getRole() {
+            this.role = sessionStorage.getItem('role');
+            if (this.role == '院级管理员') {
+                this.ifShowTea = true;
+            } else {
+                this.ifShowTea = false;
+            }
+        }
     },
     mounted() {
-        this.getAllUnverifyProject(this.currentPage, this.pageSize);
+        this.getAllUnverifyActivity(this.currentPage, this.pageSize);
+        this.getRole();
         this.reasonList = this.loadAll();
     }
 }

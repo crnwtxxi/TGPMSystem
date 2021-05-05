@@ -4,72 +4,74 @@
             <div slot="header" style="text-align: left;"><b>论文发表情况登记</b></div>
             <div class="regis">
                 <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-                    <el-form-item label="论文题目" prop="title">
-                        <el-input v-model="ruleForm.title"></el-input>
+                    <el-form-item label="论文题目" prop="thesisTitle">
+                        <el-input v-model="ruleForm.thesisTitle" type="text" maxlength="50" show-word-limit></el-input>
                     </el-form-item>
                     <el-form-item label="发表期刊">
                         <el-col :span="11">
-                            <el-form-item prop="period">
-                                <el-input v-model="ruleForm.period" placeholder="请输入期刊全称"></el-input>
+                            <el-form-item prop="thesisPeriod">
+                                <el-input v-model="ruleForm.thesisPeriod" placeholder="请输入期刊全称"></el-input>
                             </el-form-item>
                         </el-col>    
                         <el-col class="line" :span="1">—</el-col>
                         <el-col :span="11">
                             <el-form-item prop="number">
-                                <el-input v-model="ruleForm.number" placeholder="请输入期刊刊号"></el-input>
+                                <el-input v-model="ruleForm.number" placeholder="请输入期刊刊号,没有则无"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-form-item>
                     <el-form-item label="作者名字">
                         <el-col :span="11">
-                            <el-form-item prop="name">
-                                <el-input v-model="ruleForm.name"></el-input>
+                            <el-form-item prop="thesisName">
+                                <el-input v-model="ruleForm.thesisName" placeholder="输入名字全称"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col class="line" :span="1">—</el-col>
                         <el-col :span="11">
-                            <el-form-item prop="seque">
-                                <el-select v-model="ruleForm.seque" placeholder="请选择作者排序" style="width: 100%;">
-                                    <el-option label="第一作者" value="first"></el-option>
-                                    <el-option label="第二作者" value="second"></el-option>
-                                    <el-option label="其他" value="others"></el-option>
+                            <el-form-item prop="thesisSeque">
+                                <el-select v-model="ruleForm.thesisSeque" placeholder="请选择作者排序" style="width: 100%;">
+                                    <el-option label="第一作者" value="第一作者"></el-option>
+                                    <el-option label="第二作者" value="第二作者"></el-option>
+                                    <el-option label="其他" value="其他"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                     </el-form-item>
                     <el-form-item label="期刊性质">
                         <el-col :span="11">
-                            <el-form-item prop="type">
-                                <el-select v-model="ruleForm.type" placeholder="请选择期刊类别" style="width: 100%;">
-                                    <el-option label="学术理论类" value="academic"></el-option>
-                                    <el-option label="互作指导类" value="guidance"></el-option>
-                                    <el-option label="时事政治类" value="political"></el-option>
-                                    <el-option label="文学艺术类" value="literature"></el-option>
-                                    <el-option label="综合文化生活类" value="comprehensive"></el-option>
-                                    <el-option label="教学辅导类" value="teaching"></el-option>
-                                    <el-option label="信息文摘类" value="information"></el-option>
+                            <el-form-item prop="thesisType">
+                                <el-select v-model="ruleForm.thesisType" placeholder="请选择期刊类别" style="width: 100%;">
+                                    <el-option label="学术理论类" value="学术理论类"></el-option>
+                                    <el-option label="互作指导类" value="互作指导类"></el-option>
+                                    <el-option label="时事政治类" value="时事政治类"></el-option>
+                                    <el-option label="文学艺术类" value="文学艺术类"></el-option>
+                                    <el-option label="综合文化生活类" value="综合文化生活类"></el-option>
+                                    <el-option label="教学辅导类" value="教学辅导类"></el-option>
+                                    <el-option label="信息文摘类" value="信息文摘类"></el-option>
+                                    <el-option label="其他" value="其他"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                         <el-col class="line" :span="1">—</el-col>
                         <el-col :span="11">
-                            <el-form-item prop="level">
-                                <el-select v-model="ruleForm.level" placeholder="请选择期刊级别" style="width: 100%;">
-                                    <el-option label="省级期刊" value="provin"></el-option>
-                                    <el-option label="国家级期刊" value="nation"></el-option>
-                                    <el-option label="核心期刊" value="core"></el-option>
+                            <el-form-item prop="thesisLevel">
+                                <el-select v-model="ruleForm.thesisLevel" placeholder="请选择期刊级别" style="width: 100%;">
+                                    <el-option label="省级期刊" value="省级期刊"></el-option>
+                                    <el-option label="国家级期刊" value="国家级期刊"></el-option>
+                                    <el-option label="核心期刊" value="核心期刊"></el-option>
+                                    <el-option label="其他" value="其他"></el-option>
                                 </el-select>
                             </el-form-item>
                         </el-col>
                     </el-form-item>
                     <el-form-item label="发表时间" style="width: 50%;">
-                        <el-form-item prop="date">
-                            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date" style="width: 100%;"></el-date-picker>
+                        <el-form-item prop="thesisDate">
+                            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.thesisDate" style="width: 100%;"></el-date-picker>
                         </el-form-item>
                     </el-form-item>
-                    <el-form-item label="备注" prop="remark">
-                        <el-input type="textarea" v-model="ruleForm.remark" maxlength="200" @input="descInput"></el-input>
-                        <span class="limit">{{count}}/200</span>
+                    <el-form-item label="备注" prop="thesisDesc">
+                        <el-input type="textarea" placeholder="请将论文摘要复制至此" v-model="ruleForm.thesisDesc"
+                            maxlength="200" show-word-limit></el-input>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
@@ -120,44 +122,44 @@ export default {
         return {
             count: '0',
             ruleForm: {
-                title: '',
-                period: '',
+                thesisTitle: '',
+                thesisDate: '',
+                thesisPeriod: '',
                 number: '',
-                name: '',
-                seque: '',
-                type: '',
-                level: '',
-                date: '',
-                remark: ''
+                thesisName: '',
+                thesisSeque: '',
+                thesisType: '',
+                thesisLevel: '',
+                thesisDesc: ''
             },
             rules: {
-                title: [
+                thesisTitle: [
                     { required: true, message: '请输入论文题目', trigger: 'blur' },
                     { min: 3, max: 30, message: '长度在 3 到 30 个字符', trigger: 'blur' }
                 ],
-                period: [
-                    { required: true, message: '请输入期刊全称', trigger: 'blur' },
-                    { min: 3, max: 30, message: '长度在 3 到 30 个字符', trigger: 'blur' }
+                thesisPeriod: [
+                    { required: true, message: '请输入期刊全称', trigger: 'blur' }
                 ],
                 number: [
-                    { required: true, message: '请输入期刊刊号', trigger: 'blur' },
-                    { min: 10, max: 15, message: '长度在 10 到 15 个字符', trigger: 'blur' }
+                    { required: true, message: '请输入期刊刊号', trigger: 'blur' }
                 ],
-                name: [
-                    { required: true, message: '请输入作者名字', trigger: 'blur' },
-                    { min: 2, max: 15, message: '长度在 2 到 15 个字符', trigger: 'blur' }
+                thesisName: [
+                    { required: true, message: '请输入作者名字', trigger: 'blur' }
                 ],
-                seque: [
+                thesisSeque: [
                     { required: true, message: '请选择作者排序', trigger: 'change' }
                 ],
-                type: [
+                thesisType: [
                     { required: true, message: '请选择期刊性质', trigger: 'change' }
                 ],
-                level: [
+                thesisLevel: [
                     { required: true, message: '请选择期刊级别', trigger: 'change' }
                 ],
-                date: [
+                thesisDate: [
                     { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
+                ],
+                thesisDesc: [
+                    { required: true, message: '请填写备注', trigger: 'change' }
                 ]
             }
         }
@@ -166,7 +168,35 @@ export default {
         submitForm(formName) {
             this.$refs[formName].validate((valid) => {
             if (valid) {
-                alert('submit!');
+                this.axios.post('/common/reportThesis',{
+                    thesisTitle: this.ruleForm.thesisTitle,
+                    thesisPeriod: this.ruleForm.thesisPeriod,
+                    thesisName: this.ruleForm.thesisName,
+                    thesisSeque: this.ruleForm.thesisSeque,
+                    thesisType: this.ruleForm.thesisType,
+                    thesisLevel: this.ruleForm.thesisLevel,
+                    thesisDesc: this.ruleForm.thesisDesc,
+                    thesisDate: this.ruleForm.thesisDate
+                }).then(res => {
+                    console.log(res);
+                    if (res.data.success) {
+                        this.$notify({
+                            title: '论文登记成功，待审核',
+                            message: res.data.message,
+                            type: 'success'
+                        });
+                        //清空
+                        this.resetForm('ruleForm');
+                    } else {
+                        this.$notify.error({
+                            title: '计划上传失败，请重试',
+                            message: res.data.message
+                        })
+                    }
+                }).catch(error => {
+                    console.log("faile");
+                    console.log(error);
+                })
             } else {
                 console.log('error submit!!');
                 return false;
@@ -175,9 +205,6 @@ export default {
         },
         resetForm(formName) {
             this.$refs[formName].resetFields();
-        },
-        descInput(){
-            this.count = this.ruleForm.remark.length;
         }
     }
 }

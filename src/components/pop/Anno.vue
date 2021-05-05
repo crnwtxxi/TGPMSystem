@@ -26,11 +26,11 @@ export default {
             this.$router.go(-1);
         },
         getAnno() {
-            this.anno = this.$route.params.anno;
+            
         }
     },
     mounted() {
-        this.getAnno();
+       
     }
 }
 </script>
