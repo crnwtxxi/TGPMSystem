@@ -56,6 +56,8 @@ import StuInfo from '@/components/admin/StuInfo';//学生信息管理
 import Allocation from '@/components/admin/Allocation';//师生分配情况
 import PlanVeri from '@/components/admin/PlanVeri';//培养计划审核
 import ProjVeri from '@/components/admin/ProjVeri';//科研项目审核
+import OpeningTutor from '@/components/admin/OpeningTutor';
+import UpdateQuota from '@/components/admin/UpdateQuota';
 
 //附属组件
 import Anno from '@/components/pop/Anno';//公告详情页面
@@ -250,6 +252,16 @@ export default new Router({
           path: 'TaskDetail',
           name: 'TaskDetail',
           component: TaskDetail
+        },
+        {
+          path: 'OpeningTutor',
+          name: 'OpeningTutor',
+          component: OpeningTutor
+        },
+        {
+          path: 'UpdateQuota',
+          name: 'UpdateQuota',
+          component: UpdateQuota
         }
       ]
     }

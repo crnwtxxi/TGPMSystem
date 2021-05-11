@@ -9,7 +9,7 @@
                 <el-table-column prop="stuProfess" label="专业" min-width="200"></el-table-column>
                 <el-table-column prop="stuDirection" label="方向" min-width="200"></el-table-column>
                 <el-table-column prop="stuType" label="学位性质" min-width="200"></el-table-column>
-                <el-table-column prop="stuEmail" label="邮箱" min-width="250"></el-table-column>
+                <el-table-column prop="stuEmail" label="邮箱" min-width="200"></el-table-column>
                 <el-table-column label="操作" min-width="200">
                     <template slot-scope="scope">
                         <el-button size="mini" @click="handleView(scope.$index, scope.row)">查看</el-button>
@@ -44,6 +44,8 @@ export default {
     },
     methods: {
         handleView(index, row) {
+            sessionStorage.setItem("userId",row.stuId);
+            sessionStorage.setItem("userType","student");
             this.$router.push('/user/InfoDetail');
         },
         handleSizeChange(val) {

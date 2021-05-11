@@ -54,6 +54,9 @@ export default {
     methods: {
         handleView(index, row) {
             console.log('click');
+            sessionStorage.setItem("userId",row.stuId);
+            sessionStorage.setItem("userType","student");
+            this.$router.push('/admin/InfoDetail');
         },
         handleEdit(index, row) {
             console.log(index, row);

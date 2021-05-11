@@ -45,14 +45,14 @@
                         <el-submenu index="1" v-if="ifShow">
                             <template slot="title">
                                 <i class="el-icon-user"></i>
-                                <b ref="nav1">系统管理</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <b ref="nav1">系统管理</b><span v-if="ifShow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </template>
                             <el-menu-item index="1-1" @click="toSetAdmin"><span class="navText" ref="nav11">设置管理员</span></el-menu-item>
                         </el-submenu>
                         <el-submenu index="2" v-if="!ifShow">
                             <template slot="title">
                                 <i class="el-icon-date"></i>
-                                <b ref="nav2">公告栏目</b>
+                                <b ref="nav2">公告栏目</b><span v-if="!ifShow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </template>
                             <el-menu-item index="2-1" @click="toPostAnno"><span class="navText" ref="nav21">发布公告</span></el-menu-item>
                             <el-menu-item index="2-2" @click="toAnnoRecord"><span class="navText" ref="nav22">公告记录</span></el-menu-item>
@@ -66,7 +66,7 @@
                             <el-menu-item index="3-2" @click="toTeaInfo"><span class="navText" ref="nav32">老师信息管理</span></el-menu-item>
                             <el-menu-item index="3-3" @click="toStuUpload"><span class="navText" ref="nav33">学生信息上传</span></el-menu-item>
                             <el-menu-item index="3-4" @click="toStuInfo"><span class="navText" ref="nav34">学生信息管理</span></el-menu-item>
-                            <el-menu-item index="3-5" @click="toAllocation"><span class="navText" ref="nav35">师生分配情况</span></el-menu-item>
+                            <el-menu-item index="3-5" @click="toAllocation"><span class="navText" ref="nav35">师生情况</span></el-menu-item>
                         </el-submenu>
                         <el-submenu index="4" v-if="!ifShow">
                             <template slot="title">
@@ -77,6 +77,14 @@
                             <el-menu-item index="4-2" @click="toActiVeri"><span class="navText" ref="nav42">学术活动审核</span></el-menu-item>
                             <el-menu-item index="4-3" @click="toProjVeri"><span class="navText" ref="nav43">科研项目审核</span></el-menu-item>
                             <el-menu-item index="4-4" @click="toThesisVeri"><span class="navText" ref="nav44">学术论文审核</span></el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="5" v-if="!ifShow">
+                            <template slot="title">
+                                <i class="el-icon-folder-opened"></i>
+                                <b slot="title" ref="nav5">选导师模块</b>
+                            </template>
+                            <el-menu-item index="5-1" @click="toOpening"><span class="navText" ref="nav51">开放模块</span></el-menu-item>
+                            <el-menu-item index="5-2" @click="toUpdateQuota"><span class="navText" ref="nav52">名额修改</span></el-menu-item>
                         </el-submenu>
                     </el-menu>
                 </div>
@@ -269,6 +277,16 @@ export default {
             this.nav1 = this.$refs.nav4.innerHTML;
             this.nav2 = this.$refs.nav44.innerHTML;
             this.$router.push('/admin/ThesisVeri');
+        },
+        toOpening() {//开放选导师模块
+            this.nav1 = this.$refs.nav5.innerHTML;
+            this.nav2 = this.$refs.nav51.innerHTML;
+            this.$router.push('/admin/OpeningTutor');
+        },
+        toUpdateQuota() {//名额修改
+            this.nav1 = this.$refs.nav5.innerHTML;
+            this.nav2 = this.$refs.nav52.innerHTML;
+            this.$router.push('/admin/UpdateQuota');
         },
         handleCommand(command) {
             if (command == 'modify') {

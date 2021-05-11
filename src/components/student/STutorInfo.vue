@@ -3,12 +3,12 @@
         <el-card>
             <div slot="header" style="text-align: left;"><b>我的导师</b></div>
             <el-table :data="tutorData" style="width: 100%">
-                <el-table-column prop="teaName" label="姓名" min-width="200"></el-table-column>
-                <el-table-column prop="teaTno" label="工号" min-width="200"></el-table-column>
-                <el-table-column prop="teaSex" label="性别" min-width="150"></el-table-column>
+                <el-table-column prop="teaName" label="姓名" min-width="150"></el-table-column>
+                <el-table-column prop="teaTno" label="工号" min-width="150"></el-table-column>
+                <el-table-column prop="teaSex" label="性别" min-width="110"></el-table-column>
                 <el-table-column prop="teaCollege" label="学院" min-width="200"></el-table-column>
                 <el-table-column prop="teaDirection" label="研究方向" min-width="200"></el-table-column>
-                <el-table-column prop="teaEmail" label="邮箱" min-width="300"></el-table-column>
+                <el-table-column prop="teaEmail" label="邮箱" min-width="200"></el-table-column>
                 <el-table-column label="操作" min-width="200">
                     <template slot-scope="scope">
                         <el-button size="mini"
@@ -29,6 +29,8 @@ export default {
     },
     methods: {
         handleView(index, row) {
+            sessionStorage.setItem("userId",row.teaId);
+            sessionStorage.setItem("userType","teacher");
             this.$router.push('/user/InfoDetail');
         },
         //获取导师信息

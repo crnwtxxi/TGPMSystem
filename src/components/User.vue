@@ -67,7 +67,7 @@
                                 <b ref="nav1" v-if="ifShow">我的导师</b><span v-if="ifShow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                                 <b ref="nav1" v-if="!ifShow">我的学生</b><span v-if="!ifShow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </template>
-                            <el-menu-item index="1-1" @click="toSTutorChoose" v-if="ifShow"><span class="navText" ref="nav11">导师选择</span></el-menu-item>
+                            <el-menu-item index="1-1" @click="toSTutorChoose" v-if="ifShow&&ifShowTutor"><span class="navText" ref="nav11">导师选择</span></el-menu-item>
                             <el-menu-item index="1-2" @click="toSTutorInfo" v-if="ifShow"><span class="navText" ref="nav12">导师信息</span></el-menu-item>
                             <el-menu-item index="1-1" @click="toTAppliVeri" v-if="!ifShow"><span class="navText" ref="nav11">申请审核</span></el-menu-item>
                             <el-menu-item index="1-2" @click="toTStuInfo" v-if="!ifShow"><span class="navText" ref="nav12">学生信息</span></el-menu-item>
@@ -245,6 +245,8 @@ export default {
             emailForm: {
                 newEmail: ''
             },
+            //是否显示选导师模块
+            ifShowTutor: false,
         }
     },
     methods: {
@@ -425,6 +427,7 @@ export default {
             this.userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
             if (this.role == '学生') {
                 this.ifShow = true;
+                this.judgeTutor();
             } else {
                 this.ifShow = false;
             }
@@ -530,6 +533,29 @@ export default {
         //清空表单
         resetForm(formName) {
             this.$refs[formName].resetFields();
+        },
+        //判断当前学生用户是否显示选导师模块
+        judgeTutor() {
+            this.axios.get('/tutor/judgeTutor')
+            .then(res => {
+                console.log(res.data);
+                if (res.data.success) {
+                    if(res.data.data) {
+                        //显示
+                        this.ifShowTutor = true;
+                    } else {
+                        //不显示
+                        this.ifShowTutor = false;
+                    }
+                } else {
+                    this.$notify.error({
+                        title: '错误',
+                        message: res.data.message
+                    })
+                }
+            }).catch(error => {
+                console.log(error);
+            })
         }
     },
     mounted() {
